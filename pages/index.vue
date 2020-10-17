@@ -101,7 +101,7 @@ export default {
           learningRate: 0.1,
           decayRate: 0.1
         });
-        net.train(trainingDataWithNoHomeAdvantage, { iterations: 100 });
+        net.train(trainingDataWithNoHomeAdvantage, { iterations: 5000 });
 
         for (const match of upcomming) {
           let result = await net.run([match.homeTeam.id, match.awayTeam.id]);
