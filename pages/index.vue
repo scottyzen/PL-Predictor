@@ -1,19 +1,21 @@
 <template>
   <div class="container">
-    <ul v-if="$store.state.todaysMatches" class=" mt-8">
+    <pre class="text-xs">{{ resultData }}</pre>
+    <ul v-if="$store.state.todaysMatchesData" class=" mt-8">
       <li
-        v-for="(match, i) in $store.state.todaysMatches.data.matches.slice(
+        v-for="(match, i) in $store.state.todaysMatchesData.matches.slice(
           0,
           10
         )"
         :key="match.id"
-        class="flex justify-between flex-wrap mb-5"
+        ref="matches"
+        class="flex justify-between flex-wrap mb-1 bg-white px-4 py-3 rounded-sm"
       >
         <span class="uppercase flex items-center text-gray-700 text-xs"
           ><img
             width="16"
             height="16"
-            class="mr-1 object-contain mb-1"
+            class="mr-1 object-contain mb-2"
             :src="`/${match.homeTeam.id}.png`"
             :alt="`${match.homeTeam.name} logo`"
           />{{ match.homeTeam.name }} </span
@@ -22,12 +24,12 @@
           <img
             width="16"
             height="16"
-            class="ml-1 object-contain mb-1"
+            class="ml-1 object-contain mb-2"
             :src="`/${match.awayTeam.id}.png`"
             :alt="`${match.awayTeam.name} logo`"
         /></span>
 
-        <div class=" w-full bar shadow-inner h-3 rounded relative">
+        <div class=" w-full bar shadow-inner h-2 rounded-full relative">
           <span
             :style="{
               left: results[i] == null ? 50 + '%' : results[i] + '%',
@@ -43,6 +45,10 @@
         </div>
       </li>
     </ul>
+    <div v-else class="p-12 flex justify-center items-center flex-col">
+      <img src="/icon.png" alt="Premier League Logo" />
+      <span>Getting Fixtures</span>
+    </div>
 
     <button
       class="rounded-md w-full mt-8 border-b border-gray-400 text-gray-700 bg-gray-300 p-2"
@@ -59,20 +65,37 @@ export default {
   data() {
     return {
       running: false,
-      results: []
+      results: [],
+      db: null,
+      next10IDs: null,
+      resultData: {}
     };
   },
+  mounted() {
+    // this.getAllData();
+  },
   methods: {
+    async getAllData() {
+      // this.db = await this.$fireDb.ref("/match/303801/predictions/computer");
+      // let todaysMatches = await this.$store.state.todaysMatches;
+      // let todaysMatchesIds = todaysMatches.data.matches
+      //   .slice(0, 10)
+      //   .map(match => match.id);
+
+      this.resultData = {
+        loaded: true
+      };
+    },
     run() {
       this.running = true;
       const startTheTest = async () => {
-        let history = this.$store.state.matchData.data.matches;
+        let history = this.$store.state.matchData.matches;
         let noDraws = history.filter(match => {
           return match.score.winner != "DRAW";
         });
 
-        let upcomming = this.$store.state.todaysMatches;
-        upcomming = upcomming.data.matches.slice(0, 10);
+        let upcomming = this.$store.state.todaysMatchesData;
+        upcomming = upcomming.matches.slice(0, 10);
 
         const trainingData = noDraws.map(match => {
           return {
@@ -101,14 +124,16 @@ export default {
           learningRate: 0.1,
           decayRate: 0.1
         });
-        net.train(trainingDataWithNoHomeAdvantage, { iterations: 5000 });
+        net.train(trainingDataWithNoHomeAdvantage, { iterations: 500 });
 
         for (const match of upcomming) {
           let result = await net.run([match.homeTeam.id, match.awayTeam.id]);
           console.log(
             `${match.homeTeam.name} vs. ${match.awayTeam.name} : ${result}`
           );
-          this.results.push(result * 100);
+          // this.results.push(result * 100);
+          this.results[match.id].push(result * 100);
+
           this.running = false;
         }
       };
@@ -127,6 +152,9 @@ export default {
 </script>
 
 <style>
+body {
+  background: rgb(243, 243, 243);
+}
 .spinner {
   width: 20px;
   height: 20px;
@@ -140,6 +168,7 @@ export default {
 .pointer {
   transition: all 1000ms ease-in-out;
   z-index: 9;
+  margin-left: -1px;
 }
 .line {
   position: absolute;

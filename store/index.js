@@ -12,26 +12,24 @@ const dates = {
 
 export const state = () => ({
     matchData: null,
-    todaysMatches: null
+    todaysMatchesData: null
 })
 
 export const mutations = {
-    
-    // Get results of all maches from previos year
-    getPLHistory(state) {
-        axios.get( `${baseURL}/competitions/PL/matches?status=FINISHED&dateFrom=2019-09-01&dateTo=${dates.today}` , CONFIG )
-        .then(res => { state.matchData = res });
-    },
-    
-    // Get todays matches
-    getTodaysMatches(state){
-        // axios.get( `${baseURL}/competitions/PL/matches?status=SCHEDULED&dateFrom=${dates.today}&dateTo=${dates.tomorrow}`, CONFIG )
-        // .then(res => { state.todaysMatches = res });
-        axios.get( `${baseURL}/competitions/PL/matches?status=SCHEDULED`, CONFIG )
-        .then(res => { state.todaysMatches = res });
-    }
-
+    setTodaysMatches (state, data) { state.todaysMatchesData = data },
+    setMatchData (state, data2) { state.matchData = data2 },
 }
+
+export const actions = {
+    async nuxtServerInit ({commit}) {
+      let {data} = await axios.get( `${baseURL}/competitions/PL/matches?status=SCHEDULED`, CONFIG );
+      commit('setTodaysMatches', data)
+      
+      let {data2} = await axios.get( `${baseURL}/competitions/PL/matches?status=FINISHED&dateFrom=2019-09-01&dateTo=${dates.today}` , CONFIG );
+      commit('setMatchData', data2)
+
+    }
+  }
 
 
 export const strict = false;

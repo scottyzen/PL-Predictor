@@ -14,6 +14,7 @@ export default {
   css: [
   ],
   plugins: [
+    { src: '~/plugins/localStorage.js', ssr: false }
   ],
   components: true,
   buildModules: [
