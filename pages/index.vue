@@ -1,17 +1,17 @@
 <template>
   <div class="container">
-    <ul v-if="$store.state.todaysMatchesData" class=" mt-8">
+    <ul v-if="$store.state.todaysMatchesData" class=" mt-6">
       <li
         v-for="match in $store.state.todaysMatchesData.matches.slice(0, 10)"
         :key="match.id"
         ref="matches"
-        class="flex justify-between flex-wrap mb-1 bg-white px-4 py-3 rounded-sm"
+        class="flex justify-between flex-wrap mb-2 bg-white px-4 py-3 rounded-sm shadow-xs"
       >
         <span class="uppercase flex items-center text-gray-700 text-xs"
           ><img
             width="16"
             height="16"
-            class="mr-1 object-contain mb-2"
+            class="mr-1 object-contain"
             :src="`/${match.homeTeam.id}.png`"
             :alt="`${match.homeTeam.name} logo`"
           />{{ match.homeTeam.name }} </span
@@ -20,12 +20,12 @@
           <img
             width="16"
             height="16"
-            class="ml-1 object-contain mb-2"
+            class="ml-1 object-contain"
             :src="`/${match.awayTeam.id}.png`"
             :alt="`${match.awayTeam.name} logo`"
         /></span>
 
-        <div class=" w-full bar shadow-inner h-2 rounded-full relative">
+        <div class=" w-full bar shadow-inner mt-1 h-2 rounded-full relative">
           <span
             :style="{
               left: results == null ? 50 + '%' : results[match.id] + '%',
