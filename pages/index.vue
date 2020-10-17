@@ -1,12 +1,8 @@
 <template>
   <div class="container">
-    <pre class="text-xs">{{ resultData }}</pre>
     <ul v-if="$store.state.todaysMatchesData" class=" mt-8">
       <li
-        v-for="(match, i) in $store.state.todaysMatchesData.matches.slice(
-          0,
-          10
-        )"
+        v-for="match in $store.state.todaysMatchesData.matches.slice(0, 10)"
         :key="match.id"
         ref="matches"
         class="flex justify-between flex-wrap mb-1 bg-white px-4 py-3 rounded-sm"
@@ -32,7 +28,7 @@
         <div class=" w-full bar shadow-inner h-2 rounded-full relative">
           <span
             :style="{
-              left: results[i] == null ? 50 + '%' : results[i] + '%',
+              left: results == null ? 50 + '%' : results[match.id] + '%',
               animationDelay: `${Math.floor(Math.random() * 400) + 100}ms`,
               animationDuration: `${Math.floor(Math.random() * 2500) + 1500}ms`
             }"
@@ -65,31 +61,23 @@ export default {
   data() {
     return {
       running: false,
-      results: [],
+      results: null,
       db: null,
       next10IDs: null,
       resultData: {}
     };
   },
   mounted() {
-    // this.getAllData();
+    this.getAllData();
   },
   methods: {
-    async getAllData() {
+    getAllData() {
       // this.db = await this.$fireDb.ref("/match/303801/predictions/computer");
-      // let todaysMatches = await this.$store.state.todaysMatches;
-      // let todaysMatchesIds = todaysMatches.data.matches
-      //   .slice(0, 10)
-      //   .map(match => match.id);
-
-      this.resultData = {
-        loaded: true
-      };
     },
     run() {
       this.running = true;
       const startTheTest = async () => {
-        let history = this.$store.state.matchData.matches;
+        let history = this.$store.state.matchData.data.matches;
         let noDraws = history.filter(match => {
           return match.score.winner != "DRAW";
         });
@@ -124,18 +112,14 @@ export default {
           learningRate: 0.1,
           decayRate: 0.1
         });
-        net.train(trainingDataWithNoHomeAdvantage, { iterations: 500 });
+        net.train(trainingDataWithNoHomeAdvantage, { iterations: 250 });
+        this.results = {};
 
-        for (const match of upcomming) {
-          let result = await net.run([match.homeTeam.id, match.awayTeam.id]);
-          console.log(
-            `${match.homeTeam.name} vs. ${match.awayTeam.name} : ${result}`
-          );
-          // this.results.push(result * 100);
-          this.results[match.id].push(result * 100);
-
-          this.running = false;
-        }
+        const allresults = await upcomming.map(match => {
+          let result = net.run([match.homeTeam.id, match.awayTeam.id]);
+          this.results[match.id] = result * 100;
+          return result;
+        });
       };
       setTimeout(() => {
         startTheTest();
