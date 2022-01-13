@@ -1,31 +1,38 @@
 <template>
   <div class="container">
-    <ul v-if="$store.state.todaysMatchesData" class=" mt-6">
+    <div class="flex justify-between w-full px-4 mt-8 mb-2 text-sm">
+      <span>Home</span>
+      <span>Away</span>
+    </div>
+    <ul v-if="$store.state.todaysMatchesData">
       <li
         v-for="match in $store.state.todaysMatchesData.matches.slice(0, 10)"
         :key="match.id"
         ref="matches"
-        class="flex justify-between flex-wrap mb-2 bg-white px-4 py-3 rounded-sm shadow-xs"
+        class="flex flex-wrap justify-between px-4 py-3 mb-2 bg-white rounded-sm shadow-xs"
       >
-        <span class="uppercase flex items-center text-gray-700 text-xs"
-          ><img
-            width="16"
-            height="16"
-            class="mr-1 object-contain"
-            :src="`/${match.homeTeam.id}.png`"
-            :alt="`${match.homeTeam.name} logo`"
-          />{{ match.homeTeam.name }} </span
-        ><span class="uppercase flex items-center text-gray-700 text-xs"
-          >{{ match.awayTeam.name }}
+        <span class="flex items-center text-xs text-gray-700 uppercase">
           <img
             width="16"
             height="16"
-            class="ml-1 object-contain"
+            class="object-contain mr-1"
+            :src="`/${match.homeTeam.id}.png`"
+            :alt="`${match.homeTeam.name} logo`"
+          />
+          {{ match.homeTeam.name }}
+        </span>
+        <span class="flex items-center text-xs text-gray-700 uppercase">
+          {{ match.awayTeam.name }}
+          <img
+            width="16"
+            height="16"
+            class="object-contain ml-1"
             :src="`/${match.awayTeam.id}.png`"
             :alt="`${match.awayTeam.name} logo`"
-        /></span>
+          />
+        </span>
 
-        <div class=" w-full bar shadow-inner mt-1 h-2 rounded-full relative">
+        <div class="relative w-full h-2 mt-1 rounded-full shadow-inner bar">
           <span
             :style="{
               left: results == null ? 50 + '%' : results[match.id] + '%',
@@ -33,7 +40,7 @@
               animationDuration: `${Math.floor(Math.random() * 2500) + 1500}ms`
             }"
             :class="{ crunching: running }"
-            class=" pointer h-6 bg-gray-600 shadow w-1 block rounded -mt-2 absolute"
+            class="absolute block w-1 h-6 -mt-2 bg-gray-600 rounded shadow pointer"
           ></span>
           <span style="left: 25%" class="line"></span>
           <span style="left: 50%" class="line"></span>
@@ -41,22 +48,20 @@
         </div>
       </li>
     </ul>
-    <div v-else class="p-12 flex justify-center items-center flex-col">
+    <div v-else class="flex flex-col items-center justify-center p-12">
       <img src="/icon.png" alt="Premier League Logo" />
       <span>Getting Fixtures</span>
     </div>
 
     <button
-      class="rounded-md w-full mt-8 border-b border-gray-400 text-gray-700 bg-gray-300 p-2"
+      class="w-full p-2 mt-8 text-gray-700 bg-gray-300 border-b border-gray-400 rounded-md"
       @click="run"
-    >
-      {{ running ? "Running" : "Predict all matches" }}
-    </button>
+    >{{ running ? "Running" : "Predict all matches" }}</button>
   </div>
 </template>
 
 <script>
-const brain = require("../node_modules/brain.js/src/index");
+var brain = require('brain.js');
 export default {
   data() {
     return {
@@ -118,6 +123,7 @@ export default {
         const allresults = await upcomming.map(match => {
           let result = net.run([match.homeTeam.id, match.awayTeam.id]);
           this.results[match.id] = result * 100;
+          this.running = false;
           return result;
         });
       };

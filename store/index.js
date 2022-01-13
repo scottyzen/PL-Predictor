@@ -19,7 +19,7 @@ export const mutations = {
     setTodaysMatches (state, data) { state.todaysMatchesData = data },
     setMatchData (state, data) { state.matchData = data },
     getPLHistory(state) {
-      axios.get( `${baseURL}/competitions/PL/matches?status=FINISHED&dateFrom=2019-09-01&dateTo=${dates.today}` , CONFIG )
+      axios.get( `${baseURL}/competitions/PL/matches?status=FINISHED&dateFrom=2021-09-01&dateTo=${dates.today}` , CONFIG )
       .then(res => { state.matchData = res });
   },
 }

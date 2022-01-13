@@ -1,33 +1,40 @@
 <template>
   <div class="container">
-    <ul v-if="$store.state.todaysMatches" class=" mt-8">
+    <div class="flex justify-between w-full">
+      <span>Home</span>
+      <span>Away</span>
+    </div>
+    <ul v-if="$store.state.todaysMatches" class="mt-8">
       <li
         v-for="(match, i) in $store.state.todaysMatches.data.matches.slice(
           0,
           10
         )"
         :key="match.id"
-        class="flex justify-between flex-wrap mb-5"
+        class="flex flex-wrap justify-between mb-5"
       >
-        <span class="uppercase flex items-center text-gray-700 text-xs"
-          ><img
-            width="16"
-            height="16"
-            class="mr-1 object-contain mb-1"
-            :src="`/${match.homeTeam.id}.png`"
-            :alt="`${match.homeTeam.name} logo`"
-          />{{ match.homeTeam.name }} {{ match.homeTeam.id }}</span
-        ><span class="uppercase flex items-center text-gray-700 text-xs"
-          >{{ match.awayTeam.name }} {{ match.awayTeam.id }}
+        <span class="flex items-center text-xs text-gray-700 uppercase">
           <img
             width="16"
             height="16"
-            class="ml-1 object-contain mb-1"
+            class="object-contain mb-1 mr-1"
+            :src="`/${match.homeTeam.id}.png`"
+            :alt="`${match.homeTeam.name} logo`"
+          />
+          {{ match.homeTeam.name }} {{ match.homeTeam.id }}
+        </span>
+        <span class="flex items-center text-xs text-gray-700 uppercase">
+          {{ match.awayTeam.name }} {{ match.awayTeam.id }}
+          <img
+            width="16"
+            height="16"
+            class="object-contain mb-1 ml-1"
             :src="`/${match.awayTeam.id}.png`"
             :alt="`${match.awayTeam.name} logo`"
-        /></span>
+          />
+        </span>
 
-        <div class=" w-full bar shadow-inner h-3 rounded relative">
+        <div class="relative w-full h-3 rounded shadow-inner bar">
           <span
             :style="{
               left: results[i] == null ? 50 + '%' : results[i] + '%',
@@ -35,7 +42,7 @@
               animationDuration: `${Math.floor(Math.random() * 2500) + 1500}ms`
             }"
             :class="{ crunching: running }"
-            class=" pointer h-6 bg-gray-600 shadow w-1 block rounded -mt-2 absolute"
+            class="absolute block w-1 h-6 -mt-2 bg-gray-600 rounded shadow pointer"
           ></span>
           <span style="left: 25%" class="line"></span>
           <span style="left: 50%" class="line"></span>
@@ -45,16 +52,14 @@
     </ul>
 
     <button
-      class="rounded-md w-full mt-8 border-b border-gray-400 text-gray-700 bg-gray-300 p-2"
+      class="w-full p-2 mt-8 text-gray-700 bg-gray-300 border-b border-gray-400 rounded-md"
       @click="run"
-    >
-      {{ running ? "Running" : "Predict all matches" }}
-    </button>
+    >{{ running ? "Running" : "Predict all matches" }}</button>
   </div>
 </template>
 
 <script>
-const brain = require("../node_modules/brain.js/src/index");
+var brain = require('brain.js');
 export default {
   data() {
     return {
